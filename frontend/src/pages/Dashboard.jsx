@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import TaskModal from '../components/TaskModal';
+import { useAuth } from '../context/AuthContext.jsx';
+import api from '../services/api.js';
+import TaskModal from '../components/TaskModal.jsx';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -9,14 +9,13 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
-  const [sortDirection, setSortDirection] = useState('asc'); // <-- PERUBAHAN 1
+  const [sortDirection, setSortDirection] = useState('asc');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     try {
-      // PERUBAHAN 2: Membangun params
       const params = {
         sort_direction: sortDirection,
       };
@@ -31,13 +30,12 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [filterStatus, sortDirection]); // <-- PERUBAHAN 2: Menambah dependency
+  }, [filterStatus, sortDirection]);
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // ... (semua fungsi handle... tetap sama) ...
   const handleOpenCreateModal = () => {
     setTaskToEdit(null);
     setIsModalOpen(true);
@@ -75,7 +73,6 @@ const Dashboard = () => {
   };
 
   const renderTaskCards = () => {
-    // ... (fungsi renderTaskCards tetap sama) ...
     if (isLoading) {
       return (
         <div className="flex justify-center items-center py-12">
@@ -150,7 +147,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <header className="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-100">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="mb-4 md:mb-0">
@@ -174,12 +170,9 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Controls (PERUBAHAN 3 DI SINI) */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
           
-          {/* Wrapper untuk semua filter/sort controls */}
           <div className="flex flex-col sm:flex-row gap-4 mb-4 sm:mb-0">
-            {/* Filter Status */}
             <div className="flex items-center space-x-3">
               <label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
                 Filter Status:
@@ -197,7 +190,6 @@ const Dashboard = () => {
               </select>
             </div>
 
-            {/* [BARU] Sort by Deadline */}
             <div className="flex items-center space-x-3">
               <label htmlFor="sortDirection" className="text-sm font-medium text-gray-700 whitespace-nowrap">
                 Urutkan:
@@ -241,3 +233,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
