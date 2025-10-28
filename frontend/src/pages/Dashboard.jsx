@@ -9,13 +9,21 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
+  const [sortDirection, setSortDirection] = useState('asc'); // <-- PERUBAHAN 1
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     try {
-      const params = filterStatus !== 'All' ? { status: filterStatus } : {};
+      // PERUBAHAN 2: Membangun params
+      const params = {
+        sort_direction: sortDirection,
+      };
+      if (filterStatus !== 'All') {
+        params.status = filterStatus;
+      }
+      
       const response = await api.get('/tasks', { params });
       setTasks(response.data);
     } catch (error) {
@@ -23,12 +31,13 @@ const Dashboard = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [filterStatus]);
+  }, [filterStatus, sortDirection]); // <-- PERUBAHAN 2: Menambah dependency
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
+  // ... (semua fungsi handle... tetap sama) ...
   const handleOpenCreateModal = () => {
     setTaskToEdit(null);
     setIsModalOpen(true);
@@ -66,6 +75,7 @@ const Dashboard = () => {
   };
 
   const renderTaskCards = () => {
+    // ... (fungsi renderTaskCards tetap sama) ...
     if (isLoading) {
       return (
         <div className="flex justify-center items-center py-12">
@@ -164,23 +174,44 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Controls */}
+        {/* Controls (PERUBAHAN 3 DI SINI) */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-            <label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
-              Filter Status:
-            </label>
-            <select
-              id="statusFilter"
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="All">Semua Task</option>
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-            </select>
+          
+          {/* Wrapper untuk semua filter/sort controls */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-4 sm:mb-0">
+            {/* Filter Status */}
+            <div className="flex items-center space-x-3">
+              <label htmlFor="statusFilter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Filter Status:
+              </label>
+              <select
+                id="statusFilter"
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="All">Semua Task</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+
+            {/* [BARU] Sort by Deadline */}
+            <div className="flex items-center space-x-3">
+              <label htmlFor="sortDirection" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                Urutkan:
+              </label>
+              <select
+                id="sortDirection"
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                value={sortDirection}
+                onChange={(e) => setSortDirection(e.target.value)}
+              >
+                <option value="asc">Deadline Terdekat</option>
+                <option value="desc">Deadline Terjauh</option>
+              </select>
+            </div>
           </div>
           
           <button
